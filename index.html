@@ -26,6 +26,35 @@
 └─ <span class="folder">css/</span>
     └─ <span class="file">styles.css</span>             <span class="comment"># optional external styles</span>
 </pre>
+  <p><br>
+  first lines of subtlex files are:<br>
+  <span class="comment"> // Batch 0001–0100 <br>
+export const SUBTLEX_CH_0001_0100 = [
+<br>
+// Batch 0101–0200 <br>
+export const SUBTLEX_CH_0101_0200 = [
+<br>
+// Batch 0201–0300 <br>
+export const SUBTLEX_CH_0201_0300 = [
+</span> <br>
+
+<br>
+file names are :
+<br>
+subtlex_ch_0001_0100.js <br>
+subtlex_ch_0101_0200.js <br>
+subtlex_ch_0201_0300.js <br>
+… <br>
+ <br>
+ <br>
+code used for importing subtlex into program: <br>
+ 
+import { SUBTLEX_CH_0001_0100 } from '/home/fretje/Documents/mandarin/smartstory/subtlex/subtlex_ch_0001_0100.js'; <br>
+import { SUBTLEX_CH_0101_0200 } from '/home/fretje/Documents/mandarin/smartstory/subtlex/subtlex_ch_0101_0200.js'; <br>
+ <br>
+const ALL_WORDS = [...SUBTLEX_CH_0001_0100, ...SUBTLEX_CH_0101_0200];
+ <br>
+</p>
   <!--
   <h2>Register</h2>
   <input type="email" id="regEmail" placeholder="Email">
