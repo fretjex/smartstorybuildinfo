@@ -6,7 +6,26 @@
 </head>
 <body>
   <h1>SmartStory Build INFO</h1>
+<p>
+  # folder/file structure :
 
+/home/fretje/Documents/mandarin/smartstory/
+│
+├─ index.html                 # main quiz interface
+├─ js/
+│   ├─ main.js                # quiz logic, UI, imports batches
+│   ├─ firebase-config.js     # optional: Firebase initialization
+│   └─ utils.js               # helper functions (shuffle, export CSV, etc.)
+│
+├─ subtlex/
+│   ├─ subtlex_ch_0001_0100.js
+│   ├─ subtlex_ch_0101_0200.js
+│   ├─ subtlex_ch_0201_0300.js
+│   └─ ...                    # additional batches as needed
+│
+└─ css/
+    └─ styles.css             # optional external styles
+</p>
   <!--
   <h2>Register</h2>
   <input type="email" id="regEmail" placeholder="Email">
