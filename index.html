@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SmartStory Login</title>
+</head>
+<body>
+  <h1>SmartStory Build INFO</h1>
+
+  <!--
+  <h2>Register</h2>
+  <input type="email" id="regEmail" placeholder="Email">
+  <input type="password" id="regPassword" placeholder="Password">
+  <button onclick="register()">Register</button>
+
+  <h2>Login</h2>
+  <input type="email" id="loginEmail" placeholder="Email">
+  <input type="password" id="loginPassword" placeholder="Password">
+  <button onclick="login()">Login</button>
+
+  <p id="message"></p>
+
+  <!-- Firebase SDKs --> <!--
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    // ✅ Your actual Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCa6OUGOc9jQeM3aBeTssYulSAo3eDwb_E",
+      authDomain: "smartstory-29f24.firebaseapp.com",
+      projectId: "smartstory-29f24",
+      storageBucket: "smartstory-29f24.appspot.com",
+      messagingSenderId: "729032311233",
+      appId: "1:729032311233:web:111ba0e4da8f76fe255548"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function register() {
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          document.getElementById("message").innerText =
+            "✅ Registered as " + userCredential.user.email;
+        })
+        .catch(error => {
+          document.getElementById("message").innerText =
+            "❌ Registration failed: " + error.message;
+        });
+    }
+
+    function login() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          document.getElementById("message").innerText =
+            "✅ Logged in as " + userCredential.user.email;
+        })
+        .catch(error => {
+          document.getElementById("message").innerText =
+            "❌ Login failed: " + error.message;
+        });
+    }
+  </script>
+  -->
+</body>
+</html>
