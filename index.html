@@ -2,10 +2,444 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title></title>
+  <title>SmartStory Login</title>
 </head>
 <body>
+  <h1>smart story app progressive build instructions</h1>
+  <hr>
+  <h2>explanations</h2>
+  hello chatgpt :)<br><br>
 
-  <p>hello chatgpt; please write me a 3 line nursery rime i can copy from your answer
-</p></body>
+on this page you will find necessary informations, rules to respect and instructions for what to do next.
+<br>
+instructions are on the bottom of this page. first go through all infos, only then follow instructions on the bottom - they are labeled "bottom instructions".
+<br>
+<hr>
+<h2>informations</h2>
+-all words should be taken from locally hosted subtlex files you can find in folder structure as described below. these are grouped per 100 words.<br>
+-folder/file structure is as follows
+<br>
+<pre class="tree">
+<span class="folder">/home/fretje/Documents/mandarin/smartstory/</span>
+│
+├─ <span class="file">index.html</span>                 <span class="comment"># main interface containing smart story, heat map, quiz, import/export CSV</span>
+├─ <span class="folder">js/</span>
+│   ├─ <span class="file">quiz.js</span>                <span class="comment"># quiz logic, UI, imports batches</span>
+│   ├─ <span class="file">smartstory.js</span>                <span class="comment"># smart story logic, UI, imports batches</span>
+│   ├─ <span class="file">firebase-config.js</span>     <span class="comment"># optional: Firebase initialization</span>
+│   └─ <span class="file">utils.js</span>             <span class="comment"># helper functions (shuffle, export CSV, etc.)</span>
+│
+├─ <span class="folder">subtlex/</span>
+│   ├─ <span class="file">subtlex_ch_0001_0100.js</span>
+│   ├─ <span class="file">subtlex_ch_0101_0200.js</span>
+│   ├─ <span class="file">subtlex_ch_0201_0300.js</span>
+│   └─ <span class="comment">...                    # additional batches as needed</span>
+│
+└─ <span class="folder">css/</span>
+    └─ <span class="file">styles.css</span>             <span class="comment"># optional external styles</span>
+</pre>
+  <p><br>
+-first lines of subtlex files are:<br>
+  <span class="comment"> // Batch 0001–0100 <br>
+export const SUBTLEX_CH_0001_0100 = [
+<br>
+// Batch 0101–0200 <br>
+export const SUBTLEX_CH_0101_0200 = [
+<br>
+// Batch 0201–0300 <br>
+export const SUBTLEX_CH_0201_0300 = [
+</span> <br>
+
+<br>
+-subtlex file names are :
+<br>
+subtlex_ch_0001_0100.js <br>
+subtlex_ch_0101_0200.js <br>
+subtlex_ch_0201_0300.js <br>
+… <br>
+ <br>
+ <br>
+-code used for importing subtlex into program: <br>
+ 
+import { SUBTLEX_CH_0001_0100 } from '/home/fretje/Documents/mandarin/smartstory/subtlex/subtlex_ch_0001_0100.js'; <br>
+import { SUBTLEX_CH_0101_0200 } from '/home/fretje/Documents/mandarin/smartstory/subtlex/subtlex_ch_0101_0200.js'; <br>
+ <br>
+const ALL_WORDS = [...SUBTLEX_CH_0001_0100, ...SUBTLEX_CH_0101_0200];
+ <br>
+</p>
+<hr>
+<h2>bottom instructions</h2>
+basic instructions to keep in mind:<br>
+1/ don't do anything i didn't ask you to do <br>
+2/ use previous versions of files and adapt those. don't rewrite entire files using new ideas that weren't discussed in advance<br>
+3/ if you have suggestions for novel ideas or actions that were not discussed before, please group them in a chapter named "suggestions". only execute after i validate.<br>
+<br>
+new instructions for this time:<br>
+4/ 
+<br>
+<pre>
+start from below index.html and try to make it work with the new word file folder system
+
+index.html :
+<pre><code>
+
+
+<!-- Save as index.html and open in browser -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SUBTLEX-CH Top 100 — Diagnostic Quiz</title>
+<style>
+  :root{
+    --bg:#fbfbfb; --fg:#111;
+    --green:#63C384; --yellow:#FFD966; --red:#FF7373; --neutral:#fff;
+  }
+  body{font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:18px; background:var(--bg); color:var(--fg);}
+  h1{margin:.2rem 0;text-align:center}
+  .wrap{max-width:1100px;margin:0 auto}
+  .topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .card{background:white;padding:12px;border-radius:10px;box-shadow:0 8px 22px rgba(12,18,30,.06)}
+  .controls{display:flex;gap:8px;align-items:center}
+  .instructions{font-size:14px;color:#444}
+  /* 3-column character area */
+  #quiz-area{display:grid;grid-template-columns:1fr 2fr 1fr;gap:16px;align-items:center;margin-top:12px}
+  #pinyin,#translation{font-size:1.25rem;color:#444;min-height:2.2rem;display:flex;align-items:center;justify-content:center}
+  #character{font-size:6.5rem;text-align:center;font-weight:700;min-height:1em;display:flex;align-items:center;justify-content:center}
+  .small{font-size:0.9rem;color:#666}
+  /* heatmap */
+  #heatmap{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;margin-top:18px}
+  .cell{padding:8px;border-radius:6px;border:1px solid rgba(0,0,0,.06);text-align:center;font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; background:var(--neutral)}
+  .known{background:var(--green);color:white}
+  .review{background:var(--yellow)}
+  .unknown{background:var(--red);color:white}
+  /* buttons */
+  button{padding:8px 12px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:white;cursor:pointer}
+  button.primary{background:#0b7bd1;color:white;border:none}
+  .footer{margin-top:10px;color:#666;font-size:13px}
+  @media (max-width:900px){
+    #quiz-area{grid-template-columns:1fr;row-gap:8px}
+    #character{font-size:4.5rem}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>SUBTLEX-CH Top 100 — Diagnostic Quiz</h1>
+
+  <div class="topbar card">
+    <div>
+      <div class="instructions"><strong>Use arrow keys</strong>: ← = Know well · ↓ = Review · → = Don’t know · ↑ = Undo</div>
+      <div class="small">First press reveals pinyin & translation; press the same key again to confirm the answer.</div>
+    </div>
+
+    <div class="controls">
+      <label class="small">Order</label>
+      <select id="orderSelect" title="Order of session">
+        <option value="freq">Frequency</option>
+        <option value="shuffle">Shuffle</option>
+      </select>
+      <button id="startBtn" class="primary">Start Quiz</button>
+      <button id="exportBtn">Export (JSON)</button>
+      <input id="importInput" type="file" accept="application/json" style="display:none"/>
+      <button id="importBtn">Import (JSON)</button>
+    </div>
+  </div>
+
+  <div class="card" id="quizCard">
+    <div id="quiz-area">
+      <div id="pinyin" aria-live="polite"></div>
+      <div id="character" aria-live="polite"></div>
+      <div id="translation" aria-live="polite"></div>
+    </div>
+
+    <div id="progressLine" style="text-align:center;margin-top:6px" class="small"></div>
+
+    <div id="heatmap" aria-hidden="false"></div>
+
+    <div class="footer">Legend: <span style="color:white;background:var(--green);padding:2px 6px;border-radius:4px">know</span> <span style="padding-left:8px;color:#000;background:var(--yellow);padding:2px 6px;border-radius:4px">review</span> <span style="padding-left:8px;color:white;background:var(--red);padding:2px 6px;border-radius:4px">don't know</span></div>
+  </div>
+</div>
+
+<script>
+import { SUBTLEX_CH_0001_0100 } from '/home/fretje/Documents/mandarin/smartstory/subtlex/subtlex_ch_0001_0100.js'; <br>
+import { SUBTLEX_CH_0101_0200 } from '/home/fretje/Documents/mandarin/smartstory/subtlex/subtlex_ch_0101_0200.js'; <br>
+ <br>
+const ALL_WORDS = [...SUBTLEX_CH_0001_0100, ...SUBTLEX_CH_0101_0200];
+
+if (WORDS.length !== 100) console.warn("WORDS length =", WORDS.length);
+
+/* App state and storage */
+const STORAGE_KEY = 'subtlex_top100_v1';
+let answers = new Array(WORDS.length).fill(null); // null / 0 / 1 / 2
+let sessionQueue = [];
+let sessionIndex = 0;
+let sessionHistory = []; // undo stack {idx,prev}
+let pendingChoice = null;
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const arr = JSON.parse(raw);
+      if (Array.isArray(arr) && arr.length === WORDS.length) {
+        answers = arr;
+      }
+    }
+  } catch(e){ console.warn(e); }
+}
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(answers)); } catch(e){ console.warn(e); }
+}
+
+/* UI refs */
+const pinyinEl = document.getElementById('pinyin');
+const charEl = document.getElementById('character');
+const transEl = document.getElementById('translation');
+const heatmapEl = document.getElementById('heatmap');
+const progressLine = document.getElementById('progressLine');
+
+document.getElementById('startBtn').addEventListener('click', ()=> {
+  const order = document.getElementById('orderSelect').value;
+  sessionQueue = buildQueue(order);
+  sessionIndex = 0;
+  sessionHistory = [];
+  pendingChoice = null;
+  if (sessionQueue.length === 0) {
+    alert('All words answered.');
+    renderHeatmap();
+    updateProgress();
+    return;
+  }
+  showCurrent();
+});
+document.getElementById('exportBtn').addEventListener('click', exportProgress);
+document.getElementById('importBtn').addEventListener('click', ()=>document.getElementById('importInput').click());
+document.getElementById('importInput').addEventListener('change', importProgress);
+
+function buildQueue(order) {
+  const rem = [];
+  for (let i=0;i<WORDS.length;i++) if (answers[i] === null) rem.push(i);
+  if (order === 'shuffle') {
+    for (let i=rem.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [rem[i],rem[j]]=[rem[j],rem[i]]; }
+  }
+  return rem;
+}
+
+function showCurrent() {
+  if (!sessionQueue || sessionQueue.length === 0) {
+    charEl.textContent = "";
+    pinyinEl.textContent = "";
+    transEl.textContent = "";
+    renderHeatmap();
+    updateProgress();
+    return;
+  }
+  if (sessionIndex >= sessionQueue.length) {
+    charEl.textContent = "🎉 Session complete";
+    pinyinEl.textContent = "";
+    transEl.textContent = "";
+    renderHeatmap();
+    updateProgress();
+    return;
+  }
+  const idx = sessionQueue[sessionIndex];
+  const w = WORDS[idx];
+  charEl.textContent = w.hanzi;
+  pinyinEl.textContent = "";
+  transEl.textContent = "";
+  pendingChoice = null;
+  renderHeatmap();
+  updateProgress();
+}
+function confirmChoice(category) {
+  if (!sessionQueue || sessionIndex >= sessionQueue.length) return;
+  const idx = sessionQueue[sessionIndex];
+  sessionHistory.push({idx, prev: answers[idx]});
+  answers[idx] = category; // 0,1,2
+  save();
+  sessionIndex++;
+  if (sessionIndex >= sessionQueue.length) {
+    charEl.textContent = "🎉 Session complete";
+    pinyinEl.textContent = "";
+    transEl.textContent = "";
+    renderHeatmap();
+    updateProgress();
+  } else showCurrent();
+}
+function undoLast() {
+  if (sessionHistory.length === 0) return;
+  const last = sessionHistory.pop();
+  answers[last.idx] = last.prev;
+  save();
+  // ensure that last.idx is next to answer
+  const pos = sessionQueue.indexOf(last.idx);
+  if (pos === -1) sessionQueue.splice(sessionIndex,0,last.idx);
+  else sessionIndex = pos;
+  showCurrent();
+}
+
+/* key handling */
+window.addEventListener('keydown', (e)=>{
+  const map = {'ArrowLeft':0,'ArrowDown':1,'ArrowRight':2};
+  if (e.key === 'ArrowUp') { undoLast(); e.preventDefault(); return; }
+  if (!(e.key in map)) return;
+  e.preventDefault();
+  const cat = map[e.key];
+  // if no pending -> reveal
+  if (pendingChoice === null) {
+    const cur = sessionQueue[sessionIndex];
+    const w = WORDS[cur];
+    pinyinEl.textContent = w.pinyin;
+    transEl.textContent = w.translation;
+    pendingChoice = cat;
+    return;
+  }
+  // if same as pending -> confirm
+  if (pendingChoice === cat) confirmChoice(cat);
+  else { // switch pending
+    pendingChoice = cat;
+    // keep pinyin/translation visible
+  }
+});
+
+/* heatmap rendering */
+function renderHeatmap(){
+  heatmapEl.innerHTML = '';
+  for (let i=0;i<WORDS.length;i++){
+    const w = WORDS[i];
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const val = answers[i];
+    if (val === 0) cell.classList.add('known');
+    if (val === 1) cell.classList.add('review');
+    if (val === 2) cell.classList.add('unknown');
+    cell.textContent = w.hanzi;
+    cell.title = w.pinyin + ' — ' + w.translation;
+    cell.addEventListener('click', ()=> {
+      if (answers[i] !== null) return;
+      const pos = sessionQueue.indexOf(i);
+      if (pos === -1) sessionQueue.splice(sessionIndex,0,i);
+      else sessionIndex = pos;
+      showCurrent();
+    });
+    heatmapEl.appendChild(cell);
+  }
+}
+function updateProgress(){
+  const done = answers.filter(x => x !== null).length;
+  progressLine.textContent = `Answered ${done} / ${WORDS.length} — Queue: ${sessionQueue.length} — Index: ${sessionIndex+1}`;
+}
+
+/* export/import */
+function exportProgress(){
+  const blob = new Blob([JSON.stringify(answers)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'subtlex_top100_progress.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+function importProgress(e){
+  const file = (e && e.target && e.target.files && e.target.files[0]) || null;
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    try {
+      const arr = JSON.parse(ev.target.result);
+      if (!Array.isArray(arr) || arr.length !== WORDS.length) {
+        alert("Imported file does not match expected length. Expected " + WORDS.length + " values (null/0/1/2).");
+        return;
+      }
+      answers = arr;
+      save();
+      sessionQueue = buildQueue(document.getElementById('orderSelect').value);
+      sessionIndex = 0;
+      sessionHistory = [];
+      showCurrent();
+      alert('Progress imported.');
+    } catch(err){ alert('Import failed'); }
+  };
+  reader.readAsText(file);
+}
+
+/* boot */
+load();
+renderHeatmap();
+updateProgress();
+sessionQueue = buildQueue('freq');
+</script>
+</body>
+</html>
+
+</pre></code></pre>
+
+
+
+  <!--
+  <h2>Register</h2>
+  <input type="email" id="regEmail" placeholder="Email">
+  <input type="password" id="regPassword" placeholder="Password">
+  <button onclick="register()">Register</button>
+
+  <h2>Login</h2>
+  <input type="email" id="loginEmail" placeholder="Email">
+  <input type="password" id="loginPassword" placeholder="Password">
+  <button onclick="login()">Login</button>
+
+  <p id="message"></p>
+
+  <!-- Firebase SDKs --> <!--
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+
+  <script>
+    // ✅ Your actual Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCa6OUGOc9jQeM3aBeTssYulSAo3eDwb_E",
+      authDomain: "smartstory-29f24.firebaseapp.com",
+      projectId: "smartstory-29f24",
+      storageBucket: "smartstory-29f24.appspot.com",
+      messagingSenderId: "729032311233",
+      appId: "1:729032311233:web:111ba0e4da8f76fe255548"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function register() {
+      const email = document.getElementById("regEmail").value;
+      const password = document.getElementById("regPassword").value;
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          document.getElementById("message").innerText =
+            "✅ Registered as " + userCredential.user.email;
+        })
+        .catch(error => {
+          document.getElementById("message").innerText =
+            "❌ Registration failed: " + error.message;
+        });
+    }
+
+    function login() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          document.getElementById("message").innerText =
+            "✅ Logged in as " + userCredential.user.email;
+        })
+        .catch(error => {
+          document.getElementById("message").innerText =
+            "❌ Login failed: " + error.message;
+        });
+    }
+  </script>
+  -->
+</body>
 </html>
